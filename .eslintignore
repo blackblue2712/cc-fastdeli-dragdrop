@@ -1,0 +1,39 @@
+# don't ever lint node_modules
+node_modules
+# don't lint build output (make sure it's set to your correct build folder name)
+dist
+# don't lint nyc coverage output
+coverage
+
+wdyr.ts
+
+visual-regression
+
+ui-interaction-tests
+
+storybook-static
+
+typings
+
+next.config.js
+server.js
+next-env.d.ts
+
+.eslintcache
+
+.eslintrc.js
+
+src/assets
+
+server.js
+
+public/service-worker.js
+
+jest.config.ts
+
+sentry.client.config.js
+
+sentry.server.config.js
+next-i18next.config.js
+
+__generated__

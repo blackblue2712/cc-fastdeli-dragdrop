@@ -1,0 +1,22 @@
+{
+  "files.associations": {
+    "*.svg": "html"
+  },
+  "editor.codeActionsOnSave": {
+    
+    "source.fixAll.eslint": true
+  },
+  "editor.tabSize": 2,
+  "editor.formatOnSave": true,
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.referencesCodeLens.enabled": true,
+  "cSpell.words": ["autorun", "deactive", "Leaderboard","Mapbox", "mockoptions"],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.format.enable": true,
+}

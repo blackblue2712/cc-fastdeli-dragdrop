@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "server/**/*",
+    "src/**/*",
+    "pages/**/*",
+    "pages.stories",
+    "pages.stories/**/*",
+    "typings/**/*",
+		"visual-sanity/**/*",
+    ".eslintrc.js",
+    "updateDeps.js",
+    "commitlint.config.js",
+    "config.ts"
+  ]
+}
