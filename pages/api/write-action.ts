@@ -32,14 +32,8 @@ export default async function writeAction(
       .json(<Error>ValidationError(v4(), "Expect actions data in request"));
   }
 
-  const fileExists = fs.existsSync("./actions.json");
-
-  if (!fileExists) {
-    fs.writeFileSync("./actions.json", JSON.stringify([]));
-  }
-
-  const writeableStream = fs.createWriteStream("./actions.json");
-  writeableStream.write(JSON.stringify(data.actions));
+  const writeableStream = fs.createWriteStream("data/actions.json");
+  writeableStream.write(JSON.stringify(data.actions, null, 2));
   writeableStream.end();
 
   res.status(200).end();

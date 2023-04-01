@@ -12,13 +12,7 @@ export default async function getActions(
     return;
   }
 
-  const fileExists = fs.existsSync("./actions.json");
-
-  if (!fileExists) {
-    fs.writeFileSync("./actions.json", JSON.stringify([]));
-  }
-
-  const readStream = fs.createReadStream("./actions.json");
+  const readStream = fs.createReadStream("data/actions.json");
 
   readStream.pipe(res);
 }

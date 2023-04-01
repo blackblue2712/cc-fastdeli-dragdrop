@@ -1,0 +1,21 @@
+[
+  {
+    "id": "c26ea939-86b2-4b4c-8058-3da87bf8e99c",
+    "actionType": "ADD",
+    "name": "",
+    "type": "BUTTON",
+    "props": {
+      "label": "Button",
+      "alertMessage": ""
+    }
+  },
+  {
+    "id": "e15bba74-2b90-4e0c-b1dc-ac1bc8754522",
+    "actionType": "ADD",
+    "name": "",
+    "type": "PARAGRAPH",
+    "props": {
+      "label": "hihi"
+    }
+  }
+]
