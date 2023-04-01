@@ -2,9 +2,8 @@
 import fs from "fs";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { Error } from "./errors/error";
-import file from "../../actions.json";
 
-export default async function writeAction(
+export default async function getActions(
   req: NextApiRequest,
   res: NextApiResponse<Error | any>
 ) {
@@ -13,9 +12,10 @@ export default async function writeAction(
     return;
   }
 
-  if (file) {
-    console.log("send file instead of read");
-    res.send(file);
+  const fileExists = fs.existsSync("./actions.json");
+
+  if (!fileExists) {
+    fs.writeFileSync("./actions.json", JSON.stringify([]));
   }
 
   const readStream = fs.createReadStream("./actions.json");
