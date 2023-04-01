@@ -1,0 +1,48 @@
+@keyframes EaseIn {
+  0% {
+    top: 100%;
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  100% {
+    bottom: 0;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+}
+
+@keyframes EaseOut {
+  0% {
+    bottom: 0;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  100% {
+    top: 100%;
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.container {
+  padding: 1rem;
+  position: fixed;
+  bottom: -100%;
+  right: 1rem;
+  z-index: 100;
+  display: none;
+}
+
+.container.active {
+  animation: EaseIn ease-in 0.4s;
+  bottom: 0;
+  display: flex;
+}
+
+.container.unactive {
+  animation: EaseOut ease-in 0.4s;
+  display: flex;
+}

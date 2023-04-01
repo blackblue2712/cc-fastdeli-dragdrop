@@ -10,7 +10,7 @@ type IProps = {
 
 export const PageLayout = observer((props: IProps) => {
   return (
-    <section id="page-layout" className={[`h-full min-h-screen`, styles.section].join(" ")}>
+    <section id="page-layout" className={[`h-full min-h-screen antialiased`, styles.section].join(" ")}>
       <TheHeader />
       {props.children}
       <TheFooter />

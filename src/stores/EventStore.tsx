@@ -1,8 +1,8 @@
 import { v4 } from "uuid";
-import { makeObservable, observable, IObservableArray, action, computed } from "mobx";
+import { makeObservable, observable, action } from "mobx";
 import { ActionStore } from "./ActionStore";
-import { Action, ActionType, InteractorButtonType, InteractorItem } from "./Action";
-import { useRef } from "react";
+import { Action, ActionType, InteractorButtonType, InteractorItem } from "./models/Action";
+import { LOCAL_ACTIONS } from "../shared/constant";
 
 export type DraggingState = {
   active: boolean;
@@ -18,26 +18,9 @@ export type DraggingState = {
 
 
 export class EventStore {
-  constructor(private actionStore: ActionStore) {
+  constructor(private actionStore: ActionStore, private DRAGGABLE_ELEMENTS: Array<InteractorItem>) {
     makeObservable(this);
   }
-
-  public readonly DRAGGABLE_ELEMENTS: Array<InteractorItem> = [
-    {
-      id: "draggable-button",
-      type: InteractorButtonType.BUTTON,
-      name: "button",
-      icon: <></>,
-      ref: useRef<HTMLDivElement>(null),
-    },
-    {
-      id: "draggable-paragraph",
-      type: InteractorButtonType.PARAGRAPH,
-      name: "paragraph",
-      icon: <></>,
-      ref: useRef<HTMLDivElement>(null),
-    }
-  ];
 
   @observable draggingState: DraggingState = {
     active: false,
@@ -50,7 +33,7 @@ export class EventStore {
     ref: null
   }
 
-  @action.bound mouseDownListener = (e: MouseEvent, data: InteractorItem) => {
+  @action.bound onDragEnter = (e: MouseEvent, data: InteractorItem) => {
     const { ref } = data;
     if (this.draggingState.active) return;
 
@@ -63,7 +46,7 @@ export class EventStore {
     }
   }
 
-  @action.bound mouseUpListener = (e: MouseEvent, data: InteractorItem, boxContainerRef: React.RefObject<HTMLDivElement>) => {
+  @action.bound onDragOut = (e: MouseEvent, data: InteractorItem, boxContainerRef: React.RefObject<HTMLDivElement>) => {
     const { ref, type } = data;
 
     this.draggingState = {
@@ -101,7 +84,7 @@ export class EventStore {
     setTimeout(() => ref.current!.style.transition = "0s")
   }
 
-  @action.bound mouseMoveListener = (e: MouseEvent, data: InteractorItem, boxContainerRef: React.RefObject<HTMLDivElement>) => {
+  @action.bound onDragging = (e: MouseEvent, data: InteractorItem, boxContainerRef: React.RefObject<HTMLDivElement>) => {
     const { ref } = data;
     if (!this.draggingState.active) return;
     if (ref.current?.id !== this.draggingState.ref?.current?.id) return;
@@ -133,27 +116,31 @@ export class EventStore {
   }
 
   @action.bound buildActionData = (type: InteractorButtonType): Action => {
-    return type === InteractorButtonType.BUTTON
-      ? {
-        id: v4(),
-        actionType: ActionType.ADD,
-        name: "",
-        type: InteractorButtonType.BUTTON,
-        props: {
-          label: "Button",
-          action: () => { },
-        },
-      }
-      : {
-        id: v4(),
-        actionType: ActionType.ADD,
-        name: "",
-        type: InteractorButtonType.PARAGRAPH,
-        props: {
-          label:
-            "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, qui!",
-        },
-      }
+    switch (type) {
+      case InteractorButtonType.BUTTON:
+        return {
+          id: v4(),
+          actionType: ActionType.ADD,
+          name: "",
+          type: InteractorButtonType.BUTTON,
+          props: {
+            label: "Button",
+            alertMessage: "",
+          },
+        }
+      default:
+      case InteractorButtonType.PARAGRAPH:
+        return {
+          id: v4(),
+          actionType: ActionType.ADD,
+          name: "",
+          type: InteractorButtonType.PARAGRAPH,
+          props: {
+            label:
+              "Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum, qui!",
+          },
+        }
+    }
   }
 
   @action.bound registerEvents = (boxContainerRef: React.RefObject<HTMLDivElement>) => {
@@ -164,9 +151,9 @@ export class EventStore {
     this.DRAGGABLE_ELEMENTS.forEach((el) => {
       if (!el.ref.current) throw new Error("Illegal ref state!");
 
-      el.ref.current.addEventListener("mousedown", (e) => this.mouseDownListener(e, el));
-      document.addEventListener("mousemove", (e) => this.mouseMoveListener(e, el, boxContainerRef));
-      el.ref.current.addEventListener("mouseup", (e) => this.mouseUpListener(e, el, boxContainerRef));
+      el.ref.current.addEventListener("mousedown", (e) => this.onDragEnter(e, el));
+      document.addEventListener("mousemove", (e) => this.onDragging(e, el, boxContainerRef));
+      el.ref.current.addEventListener("mouseup", (e) => this.onDragOut(e, el, boxContainerRef));
     });
   }
 
@@ -174,9 +161,17 @@ export class EventStore {
     this.DRAGGABLE_ELEMENTS.forEach((el) => {
       if (!el.ref.current) throw new Error("Illegal ref state!");
 
-      el.ref.current.removeEventListener("mousedown", (e) => this.mouseDownListener(e, el));
-      document.removeEventListener("mousemove", (e) => this.mouseMoveListener(e, el, boxContainerRef));
-      el.ref.current.removeEventListener("mouseup", (e) => this.mouseUpListener(e, el, boxContainerRef));
+      el.ref.current.removeEventListener("mousedown", (e) => this.onDragEnter(e, el));
+      document.removeEventListener("mousemove", (e) => this.onDragging(e, el, boxContainerRef));
+      el.ref.current.removeEventListener("mouseup", (e) => this.onDragOut(e, el, boxContainerRef));
     });
+  }
+
+  @action.bound initLocalActions = () => {
+    const localActions = localStorage.getItem(LOCAL_ACTIONS);
+
+    if (!localActions) return;
+
+    this.actionStore.setActions(JSON.parse(localActions));
   }
 }

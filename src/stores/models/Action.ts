@@ -1,8 +1,7 @@
-import { v4 } from "uuid";
-
 export enum ActionType {
   ADD = "ADD",
   REMOVE = "REMOVE",
+  EDIT = "EDIT",
 }
 
 export enum InteractorButtonType {
@@ -16,22 +15,32 @@ export type BaseAction = {
   actionType: ActionType;
 };
 
-export type AddButtonAction = BaseAction & {
+export type ButtonAction = BaseAction & {
   type: InteractorButtonType.BUTTON;
   props: {
     label: string;
-    action(): void;
+    alertMessage: string;
   };
 };
 
-export type AddParagraphAction = BaseAction & {
+export type ParagraphAction = BaseAction & {
   type: InteractorButtonType.PARAGRAPH;
   props: {
     label: string;
   };
 };
 
-export type Action = AddButtonAction | AddParagraphAction;
+export type EditAction = BaseAction & {
+  actionType: ActionType.EDIT;
+  type: InteractorButtonType;
+  data: ButtonAction | ParagraphAction;
+};
+
+export type Action = ButtonAction | ParagraphAction;
+
+export function isButtonAction(item: Action): item is ButtonAction {
+  return item.type === InteractorButtonType.BUTTON;
+}
 
 export type InteractorItem = {
   id: string;
