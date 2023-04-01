@@ -1,8 +1,8 @@
 
-export const TheHeader = () => {
+export const TheHeader = (props: { title: string }) => {
   return (
     <section id="header" className="p-4">
-      <div className="text-3xl font-bold underline">This is header</div>
+      <div className="text-2xl font-bold underline">{props.title}</div>
     </section>
   )
 }

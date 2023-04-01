@@ -1,6 +1,5 @@
 import { makeObservable, observable, IObservableArray, action, computed, toJS, flow } from "mobx";
-import { findLast, } from "lodash"
-import { Action, ActionType, InteractorButtonType, isButtonAction } from "./models/Action";
+import { Action, ActionType, isButtonAction } from "./models/Action";
 import { LOCAL_ACTIONS } from "../shared/constant";
 import { MessageType, TheMessageStore } from "./TheMessageStore";
 
@@ -15,6 +14,19 @@ export class ActionStore {
 
   @observable private actions: IObservableArray<Action> = observable([]);
   @observable private prevUndoActions: IObservableArray<Action> = observable([]);
+
+  @computed get isUndoActive(): boolean {
+    return this.visibleActions.length > 0;
+  }
+
+  @computed get isRedoActive(): boolean {
+    const lastUndoAction = this.prevUndoActions[this.prevUndoActions.length - 1];
+    return !!lastUndoAction;
+  }
+
+  @computed get isExportActive(): boolean {
+    return this.actions.length >= 0;
+  }
 
   @action.bound setActions = (actions: Array<Action>) => {
     this.actions.replace(actions);
@@ -39,6 +51,8 @@ export class ActionStore {
       ...this.visibleActions[this.visibleActions.length - 1],
       actionType: ActionType.REMOVE,
     })
+
+    this.inEditAction = null
   }
 
   @action.bound redoAction() {
@@ -52,6 +66,8 @@ export class ActionStore {
       ...lastUndoAction,
       actionType: ActionType.ADD,
     })
+
+    this.inEditAction = null
   }
 
   @action.bound updateEditAction(data: Action | null) {
@@ -81,17 +97,23 @@ export class ActionStore {
     });
   })
 
+  @action.bound requestWriteActions = flow(function* (this: ActionStore) {
+    const response: Response
+      = yield fetch("/api/write-action", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ data: { actions: toJS(this.actions) } })
+      });
+
+    return response;
+  })
+
   @action.bound exportAction = flow(function* (this: ActionStore) {
     try {
-      const response: Response
-        = yield fetch("/api/write-action", {
-          method: "POST",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ data: { actions: toJS(this.actions) } })
-        });
+      yield this.requestWriteActions();
 
       window.open("/actions.json", "_blank");
     } catch (error) {
@@ -101,10 +123,61 @@ export class ActionStore {
       });
       console.log(error)
     }
-  })
+  });
+
+  @action.bound viewActions = flow(function* (this: ActionStore) {
+    yield this.requestWriteActions();
+
+    window.open("/consumer", "_blank");
+  });
+
+  @action.bound importAction = flow(function* (this: ActionStore, ref: React.RefObject<HTMLInputElement>) {
+    if (!ref.current?.files || ref.current?.files?.length === 0) {
+      return
+    };
+
+    const reader = new FileReader();
+    reader.addEventListener("load", async (e) => {
+      if (!e.target?.result) {
+        return this.theMessageStore.showMessage({
+          msg: "Can't read file",
+          type: MessageType.WARN
+        });
+      }
+
+      const actions = JSON.parse(e.target.result as string) // read as text;
+
+      if (!Array.isArray(actions)) {
+        return this.theMessageStore.showMessage({
+          msg: "Expect file content is an array",
+          type: MessageType.ERROR
+        });
+      }
+
+      this.actions.replace(actions);
+      this.inEditAction = null;
+
+      this.theMessageStore.showMessage({
+        msg: "Import successfully",
+        type: MessageType.OK
+      });
+    });
+    reader.readAsText(ref.current.files[0]);
+  });
+
+  @action.bound reset = () => {
+    this.actions.replace([]);
+    this.inEditAction = null;
+
+    localStorage.removeItem(LOCAL_ACTIONS);
+
+    this.theMessageStore.showMessage({
+      msg: "Reset done",
+      type: MessageType.OK
+    });
+  }
 
   @computed.struct get visibleActions(): Action[] {
-    console.log(toJS(this.actions));
     const result: IObservableArray<Action> = observable([]);
 
     for (const act of this.actions) {

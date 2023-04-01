@@ -1,1 +1,0 @@
-export const LOCAL_ACTIONS = "LOCAL_ACTIONS";

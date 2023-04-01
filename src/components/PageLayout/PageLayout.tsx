@@ -6,14 +6,15 @@ import styles from "./PageLayout.module.css";
 
 type IProps = {
   children: React.ReactNode;
+  renderHeader(): JSX.Element;
 }
 
 export const PageLayout = observer((props: IProps) => {
   return (
     <section id="page-layout" className={[`h-full min-h-screen antialiased`, styles.section].join(" ")}>
-      <TheHeader />
+      {props.renderHeader()}
       {props.children}
-      <TheFooter />
+      {/* <TheFooter /> */}
     </section>
   )
 })

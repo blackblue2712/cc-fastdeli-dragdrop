@@ -35,7 +35,10 @@ export class EventStore {
 
   @action.bound onDragEnter = (e: MouseEvent, data: InteractorItem) => {
     const { ref } = data;
+
     if (this.draggingState.active) return;
+
+    ref.current!.style.zIndex = "100";
 
     this.draggingState = {
       ...this.draggingState,
@@ -69,6 +72,7 @@ export class EventStore {
     ref.current!.firstElementChild?.classList.remove("border-green-500")
     ref.current!.firstElementChild?.classList.add("border-yellow-950")
     ref.current!.style.transform = `translate(${0}px, ${0}px)`;
+    ref.current!.style.zIndex = "1";
 
     this.draggingState = {
       active: false,
