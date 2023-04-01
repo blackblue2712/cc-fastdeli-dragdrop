@@ -2,6 +2,7 @@ import { makeObservable, observable, IObservableArray, action, computed, toJS, f
 import { Action, ActionType, isButtonAction } from "./models/Action";
 import { LOCAL_ACTIONS } from "../shared/constant";
 import { MessageType, TheMessageStore } from "./TheMessageStore";
+import Router from "next/router";
 
 
 
@@ -11,7 +12,6 @@ export class ActionStore {
   }
 
   @observable public inEditAction: Action | null = null;
-
   @observable private actions: IObservableArray<Action> = observable([]);
   @observable private prevUndoActions: IObservableArray<Action> = observable([]);
 
@@ -115,7 +115,7 @@ export class ActionStore {
     try {
       yield this.requestWriteActions();
 
-      window.open("/actions.json", "_blank");
+      window.open("/actions.json", "blank");
     } catch (error) {
       this.theMessageStore.showMessage({
         msg: "Something wrong in our end, pelase try again!",

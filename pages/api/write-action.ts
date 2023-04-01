@@ -32,7 +32,7 @@ export default async function writeAction(
       .json(<Error>ValidationError(v4(), "Expect actions data in request"));
   }
 
-  const writeableStream = fs.createWriteStream("./public/actions.json");
+  const writeableStream = fs.createWriteStream("./actions.json");
   writeableStream.write(JSON.stringify(data.actions));
   writeableStream.end();
 

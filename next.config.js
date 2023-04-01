@@ -6,6 +6,9 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  async rewrites() {
+    return [{ destination: "/api/get-actions", source: "/actions.json" }];
+  },
 };
 
 module.exports = nextConfig;

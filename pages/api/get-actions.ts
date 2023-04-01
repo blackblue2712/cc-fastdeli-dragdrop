@@ -12,7 +12,7 @@ export default async function writeAction(
     return;
   }
 
-  const readStream = fs.createReadStream("./public/actions.json");
+  const readStream = fs.createReadStream("./actions.json");
 
   readStream.pipe(res);
 }

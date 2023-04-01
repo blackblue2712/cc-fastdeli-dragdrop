@@ -14,6 +14,7 @@ import { TheMessageStore } from "../src/stores/TheMessageStore";
 import { ActionEdit } from "../src/components/ActionEdit/ActionEdit";
 import { getDraggableElements } from "../src/shared/constant";
 import { TheHeader } from "../src/components/TheHeader/TheHeader";
+import Link from "next/link";
 
 const HomePage: NextPage = observer(function () {
   const DRAGGABLE_ELEMENTS = getDraggableElements()
