@@ -42,7 +42,7 @@ app.get("/actions.json", (req, res) => {
 
 app.get("/api/get-actions", (req, res) => {
   const userId = req.query.uid;
-  console.log("/api/get-actions", req.query);
+  console.log("/api/get-actions", req.query, userRepo.getAll());
 
   if (!userId) {
     console.log("cannot find uid in request query");
