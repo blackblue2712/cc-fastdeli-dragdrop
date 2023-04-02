@@ -3,6 +3,8 @@ import { InteractorButtonType, InteractorItem } from "../stores/models/Action";
 
 export const LOCAL_ACTIONS = "LOCAL_ACTIONS";
 
+export const USER_CORRELATION_ID = "USER_CORRELATION_ID";
+
 export const getDraggableElements = (): Array<InteractorItem> => [
   {
     id: "draggable-button",

@@ -1,6 +1,6 @@
 import { makeObservable, observable, IObservableArray, action, computed, toJS, flow } from "mobx";
 import { Action, ActionType, isButtonAction } from "./models/Action";
-import { LOCAL_ACTIONS } from "../shared/constant";
+import { LOCAL_ACTIONS, USER_CORRELATION_ID } from "../shared/constant";
 import { MessageType, TheMessageStore } from "./TheMessageStore";
 import Router from "next/router";
 
@@ -98,6 +98,8 @@ export class ActionStore {
   })
 
   @action.bound requestWriteActions = flow(function* (this: ActionStore) {
+    const userId = localStorage.getItem(USER_CORRELATION_ID);
+
     const response: Response
       = yield fetch("/api/write-action", {
         method: "POST",
@@ -105,7 +107,7 @@ export class ActionStore {
           "Accept": "application/json",
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ data: { actions: toJS(this.actions) } })
+        body: JSON.stringify({ data: { actions: toJS(this.actions), userId: userId } })
       });
 
     return response;

@@ -1,8 +1,8 @@
 import { v4 } from "uuid";
-import { makeObservable, observable, action } from "mobx";
+import { makeObservable, observable, action, flow } from "mobx";
 import { ActionStore } from "./ActionStore";
 import { Action, ActionType, InteractorButtonType, InteractorItem } from "./models/Action";
-import { LOCAL_ACTIONS } from "../shared/constant";
+import { LOCAL_ACTIONS, USER_CORRELATION_ID } from "../shared/constant";
 
 export type DraggingState = {
   active: boolean;
@@ -147,7 +147,28 @@ export class EventStore {
     }
   }
 
-  @action.bound registerEvents = (boxContainerRef: React.RefObject<HTMLDivElement>) => {
+  @action.bound initUserCorrelationId = flow(function* () {
+    const userId = localStorage.getItem(USER_CORRELATION_ID);
+
+    if (!userId) {
+      const fakeUserId = v4();
+      localStorage.setItem(USER_CORRELATION_ID, fakeUserId);
+      const res = yield fetch("/api/set-user", {
+        body: JSON.stringify({ data: { userId: fakeUserId } }), method: "POST", headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+      })
+
+      return fakeUserId;
+    }
+
+    return userId;
+  });
+
+  @action.bound registerEvents = flow(function* (this: EventStore, boxContainerRef: React.RefObject<HTMLDivElement>) {
+    yield this.initUserCorrelationId();
+
     if (!boxContainerRef.current) {
       throw new Error("Illegal ref state!");
     }
@@ -159,7 +180,7 @@ export class EventStore {
       document.addEventListener("mousemove", (e) => this.onDragging(e, el, boxContainerRef));
       el.ref.current.addEventListener("mouseup", (e) => this.onDragOut(e, el, boxContainerRef));
     });
-  }
+  })
 
   @action.bound cleanupEvents = (boxContainerRef: React.RefObject<HTMLDivElement>) => {
     this.DRAGGABLE_ELEMENTS.forEach((el) => {

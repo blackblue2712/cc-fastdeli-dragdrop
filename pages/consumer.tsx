@@ -6,13 +6,16 @@ import { PageLayout } from '../src/components/PageLayout/PageLayout'
 import { Action, InteractorButtonType } from "../src/stores/models/Action";
 import { ConsumerStore } from "../src/stores/ConsumerStore";
 import { TheHeader } from "../src/components/TheHeader/TheHeader";
+import { USER_CORRELATION_ID } from "../src/shared/constant";
 
 const ConsumerPage: NextPage = observer(function () {
   const [pageStore] = useState(() => new ConsumerStore());
 
   useEffect(() => {
+    const userId = localStorage.getItem(USER_CORRELATION_ID);
+    if (!userId) return;
     (async () => {
-      const response = await fetch("/api/get-actions");
+      const response = await fetch(`/api/get-actions?uid=${userId}`);
 
       const actions = await response.json();
 
