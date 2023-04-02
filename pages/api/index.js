@@ -5,7 +5,7 @@ class UserRepo {
   constructor() {}
 
   add(user) {
-    const foundIndex = this.users.findIndex((user) => user.id === user.id);
+    const foundIndex = this.users.findIndex((u) => u.id === user.id);
     if (foundIndex !== -1) {
       console.log("founded user!", this.users[foundIndex]);
       return this.users[foundIndex];
