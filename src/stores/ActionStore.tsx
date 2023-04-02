@@ -117,7 +117,7 @@ export class ActionStore {
     try {
       yield this.requestWriteActions();
 
-      window.open("/actions.json", "blank");
+      window.open(`/actions.json?uid=${localStorage.getItem(USER_CORRELATION_ID)}`, "blank");
     } catch (error) {
       this.theMessageStore.showMessage({
         msg: "Something wrong in our end, pelase try again!",

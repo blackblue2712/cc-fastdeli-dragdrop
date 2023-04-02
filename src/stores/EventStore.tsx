@@ -158,10 +158,17 @@ export class EventStore {
           "Accept": "application/json",
           "Content-Type": "application/json"
         },
-      })
+      });
 
       return fakeUserId;
     }
+
+    yield fetch("/api/set-user", {
+      body: JSON.stringify({ data: { userId: userId } }), method: "POST", headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      },
+    })
 
     return userId;
   });

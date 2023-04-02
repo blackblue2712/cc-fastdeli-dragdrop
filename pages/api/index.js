@@ -2,11 +2,15 @@ const app = require("express")();
 
 class UserRepo {
   users = [];
-  constructor() {
-    console.log("aaaa run constructor UserRepo =====");
-  }
+  constructor() {}
 
   add(user) {
+    const foundIndex = this.users.findIndex((user) => user.id === user.id);
+    if (foundIndex !== -1) {
+      console.log("founded user!", this.users[foundIndex]);
+      return this.users[foundIndex];
+    }
+
     this.users.push(user);
 
     return user;
@@ -19,7 +23,7 @@ class UserRepo {
 
 const userRepo = new UserRepo();
 
-app.get("/api/get-actions", (req, res) => {
+app.get("/actions.json", (req, res) => {
   const userId = req.query.uid;
 
   if (!userId) {
@@ -29,7 +33,24 @@ app.get("/api/get-actions", (req, res) => {
   }
 
   // const readStream = fs.createReadStream("data/actions.json");
+  // readStream.pipe(res);
 
+  const user = userRepo.getAll().find((user) => user.id === userId);
+
+  return res.status(200).json(user?.actions || []);
+});
+
+app.get("/api/get-actions", (req, res) => {
+  const userId = req.query.uid;
+  console.log("/api/get-actions", req.query);
+
+  if (!userId) {
+    console.log("cannot find uid in request query");
+    res.status(200).json([]);
+    return;
+  }
+
+  // const readStream = fs.createReadStream("data/actions.json");
   // readStream.pipe(res);
 
   const user = userRepo.getAll().find((user) => user.id === userId);
@@ -40,8 +61,8 @@ app.get("/api/get-actions", (req, res) => {
 });
 
 app.post("/api/set-user", (req, res) => {
-  console.log("index.js");
   userRepo.add({ id: req.body.data.userId });
+  console.log("userRepo", userRepo.getAll());
 
   res.status(200).json({});
 });
@@ -50,11 +71,6 @@ app.post("/api/write-action", (req, res) => {
   // TODO: for now we don't have authenticate
   // so export file JSON once and use for every one
   // need to export by user id after implement authenticate
-
-  if (req.method !== "POST") {
-    res.redirect("/");
-    return;
-  }
 
   const { data } = req.body;
 
@@ -76,14 +92,11 @@ app.post("/api/write-action", (req, res) => {
 
   const users = userRepo.getAll();
 
-  console.log("users", users);
-
   const foundIndex = users.findIndex((user) => user.id === data.userId);
-
-  console.log("foundIndex", foundIndex);
 
   if (foundIndex === undefined || foundIndex === -1) {
     res.status(200).end();
+    return;
   }
 
   users[foundIndex] = {
@@ -91,7 +104,7 @@ app.post("/api/write-action", (req, res) => {
     actions: data.actions,
   };
 
-  res.status(200).end();
+  res.status(200).json(data.actions);
 });
 
 module.exports = app;
